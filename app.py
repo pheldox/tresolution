@@ -9,6 +9,8 @@ from yolov3_tf2.models import (
 from yolov3_tf2.dataset import transform_images, load_tfrecord_dataset
 from yolov3_tf2.utils import draw_outputs
 from flask import Flask, request, Response, jsonify, send_from_directory, abort,render_template, url_for ,flash , redirect,json
+from flask_ngrok import run_with_ngrok
+
 import os
 import sys
 
@@ -42,8 +44,7 @@ print('classes loaded')
 
 # Initialize Flask application
 app = Flask(__name__,template_folder='template')
-
-app.secret_key = 'random string'
+run_with_ngrok(app) 
 
 UPLOAD_FOLDER = 'uploads'
 STATIC_FOLDER = 'static'
@@ -188,4 +189,4 @@ def get_image():
 # if __name__ == '__main__':
 #     app.run(debug=True, host = '0.0.0.0', port=5000)
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
