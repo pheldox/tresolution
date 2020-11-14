@@ -11,7 +11,7 @@ from yolov3_tf2.utils import draw_outputs
 from flask import Flask, request, Response, jsonify, send_from_directory, abort,render_template, url_for ,flash , redirect,json
 import os
 import sys
-import easygui
+
 
 # For disabling the warning
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
@@ -42,6 +42,8 @@ print('classes loaded')
 
 # Initialize Flask application
 app = Flask(__name__,template_folder='template')
+
+app.secret_key = 'random string'
 
 UPLOAD_FOLDER = 'uploads'
 STATIC_FOLDER = 'static'
@@ -117,15 +119,19 @@ def detections():
             "totalcounts": str(count)
         })
 
+        totalcounts = response[0]["totalcounts"]
+
         img = cv2.cvtColor(raw_img.numpy(), cv2.COLOR_RGB2BGR)
         img = draw_outputs(img, (boxes, scores, classes, nums), class_names)
         cv2.imwrite(output_path + 'detection' + str(num) + '.jpg', img)
+        cv2.putText(img, "Persons Counted " + str(totalcounts), (0,130), 0, 1, (0,0,255), 2)
+
         print('output saved to: {}'.format(output_path + 'detection' + str(num) + '.jpg'))
 
         _, img_encoded = cv2.imencode('.png', img)
         respons = img_encoded.tostring()
         
-        totalcounts = response[0]["totalcounts"]
+        
         
 
         print('Total persons: {}'.format(totalcounts))
@@ -135,7 +141,8 @@ def detections():
         os.remove(name)
     try:
         # return jsonify({"response":response}), 200
-        easygui.msgbox("Total persons: {}".format(totalcounts), title="simple gui")
+        # easygui.msgbox("Total persons: {}".format(totalcounts), title="simple gui")
+        # flash("This is a flashed message.")
         return Response(response=respons, status=200, mimetype='image/png')
 
     except FileNotFoundError:
